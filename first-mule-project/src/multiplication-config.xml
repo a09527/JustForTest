@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:servlet="http://www.mulesoft.org/schema/mule/servlet"
+	xmlns:ajax="http://www.mulesoft.org/schema/mule/ajax"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/3.1/mule.xsd
+        http://www.mulesoft.org/schema/mule/ajax http://www.mulesoft.org/schema/mule/ajax/3.1/mule-ajax.xsd
+        http://www.mulesoft.org/schema/mule/servlet http://www.mulesoft.org/schema/mule/servlet/3.1/mule-servlet.xsd">
+	<message-properties-transformer name="setHtmlContentType"
+		overwrite="true">
+		<add-message-property key="Content-Type" value="text/html" />
+		<delete-message-property key="content-type" />
+	</message-properties-transformer>
+	<ajax:connector name="ajaxServer" serverUrl="http://0.0.0.0:8083/multiplication"
+		resourceBase="./webapps/multiplication" />
+    <flow name="MultiplicationService">
+    	<ajax:inbound-endpoint channel="/services/catalog">
+        	<custom-transformer class="com.test.ml.transformer.HttpRequest" />
+        	<response>
+            	<custom-transformer class="com.test.ml.multiplication.TextResponse" />
+            	<transformer ref="setHtmlContentType" />
+        	</response>
+    	</ajax:inbound-endpoint>
+    	<component class="com.test.ml.multiplication.MultiplicationServiceImpl" /> 
+    </flow> 
+</mule>
